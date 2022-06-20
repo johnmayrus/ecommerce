@@ -12,7 +12,7 @@
             $fildname = substr($name, 3, strlen($name));
             switch ($method) {
                 case "get":
-                    return $this->values[$fildname];
+                    return (isset($this->values[$fildname])) ? $this->values[$fildname] : null;
                     break;
                 case "set":
                     $this->values[$fildname] = $args[0];
