@@ -11,7 +11,8 @@
     "slim/slim": "2.0",
     "rain/raintpl": "3.0.0",
     "ext-openssl": "*",
-    "ext-mysql_xdevapi": "*"
+    "ext-mysql_xdevapi": "*",
+    "ext-gd": "*"
   },
   "autoload": {
     "psr-4": {
