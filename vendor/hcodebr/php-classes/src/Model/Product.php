@@ -15,14 +15,36 @@
             return $sql->select("SELECT * FROM tb_products ORDER BY desproduct");
             
         }
-        public static function checkList ($list){
         
-           foreach ($list as &$row){
-               $p = new Product();
-               $p ->setData($row);
-               $row = $p->getValues();
-           }
-        return $list;
+        public static function checkList($list)
+        {
+            
+            foreach ($list as &$row) {
+                $p = new Product();
+                $p->setData($row);
+                $row = $p->getValues();
+            }
+            return $list;
+        }
+        
+        public function getValues()
+        {
+            $this->checkPhoto();
+            
+            $values = parent::getValues();
+            
+            return $values;
+        }
+        
+        public function checkPhoto()
+        {
+            if (file_exists($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR .
+                "site" . DIRECTORY_SEPARATOR . "img" . DIRECTORY_SEPARATOR . "products" . DIRECTORY_SEPARATOR . $this->getidproduct() . ".jpg")) {
+                $url = "/res/site/img/products/" . $this->getidproduct() . ".jpg";
+            } else {
+                $url = "/res/site/img/product.jpg";
+            }
+            return $this->setdesphoto($url);
         }
         
         public function save()
@@ -39,19 +61,19 @@
                     ":vllength" => $this->getvllength(),
                     ":vlweight" => $this->getvlweight(),
                     ":desurl" => $this->getdesurl()
-                   
+                
                 )
             );
             $this->setData($results[0]);
-           
+            
         }
-    
+        
         public function get($idproduct)
         {
             $sql = new Sql();
             
             $results = $sql->select("SELECT * FROM tb_products WHERE idproduct = :idproduct", [
-                ":idproduct"=>$idproduct
+                ":idproduct" => $idproduct
             ]);
             
             $this->setData($results[0]);
@@ -61,43 +83,24 @@
         {
             $sql = new Sql();
             $sql->query("DELETE FROM tb_products WHERE idproduct = :idproduct", [
-                ":idproduct"=>$this->getidproduct()
+                ":idproduct" => $this->getidproduct()
             ]);
             
         }
         
-        public function checkPhoto(){
-        if (file_exists($_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR . "res" . DIRECTORY_SEPARATOR .
-        "site" . DIRECTORY_SEPARATOR . "img" . DIRECTORY_SEPARATOR . "products" . DIRECTORY_SEPARATOR . $this->getidproduct() . ".jpg")){
-            $url =  "/res/site/img/products/" . $this->getidproduct() . ".jpg";
-        }else{
-            $url = "/res/site/img/product.jpg";
-        }
-        return $this->setdesphoto($url);
-        }
-        
-        public function getValues()
-        {
-            $this->checkPhoto();
-            
-            $values =  parent::getValues();
-            
-            return $values;
-        }
-    
         public function setPhoto($file)
         {
-          
-          //  $parts=pathinfo($file['name'],PATHINFO_EXTENSION);
+            
+            //  $parts=pathinfo($file['name'],PATHINFO_EXTENSION);
             //$parts['extension'];
             $extension = explode(".", $file['name']);
             
             $extension = end($extension);
             
-            switch (strtolower($extension)){
+            switch (strtolower($extension)) {
                 case "jpg";
                 case "jpeg";
-                $image = imagecreatefromjpeg($file["tmp_name"]);
+                    $image = imagecreatefromjpeg($file["tmp_name"]);
                     break;
                 case "gif";
                     $image = imagecreatefromgif($file["tmp_name"]);
@@ -116,12 +119,35 @@
                 "img" . DIRECTORY_SEPARATOR .
                 "products" . DIRECTORY_SEPARATOR .
                 $this->getidproduct() . ".jpg";
-           
+            
             imagejpeg($image, $dist);
             
             imagedestroy($image);
             
             $this->checkPhoto();
+        }
+        
+        public function getFromURL($desurl)
+        {
+            
+            $sql = new Sql();
+            
+            $rows = $sql->select("SELECT * FROM tb_products WHERE desurl = :desurl LIMIT 1", [
+                'desurl' => $desurl
+            ]);
+            $this->setData($rows[0]);
+        }
+        
+        public function getCategories()
+        {
+            
+            $sql = new Sql();
+            return $sql->select("SELECT * FROM tb_categories a INNER JOIN tb_productscategories b ON
+                a.idcategory = b.idcategory WHERE b.idproduct = :idproduct", [
+                ":idproduct" => $this->getidproduct()
+            ]);
+            
+            
         }
     }
     
