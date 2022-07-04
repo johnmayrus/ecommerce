@@ -13,6 +13,34 @@
         const SECRET = 'JohnMayrus_Secret';
         const CODE = 'AES-128-ECB';
         
+        public static function getFromSession(){
+            $user = new User();
+            if (isset($_SESSION[User::SESSION]) && (int) $_SESSION[User::SESSION]['iduser'] > 0){
+                
+                $user->setData($_SESSION[User::SESSION]);
+                
+            }
+            return $user;
+        }
+        public static function checkLogin($inadmin = true){
+            if (
+                !isset($_SESSION[User::SESSION])
+                ||
+                !$_SESSION[User::SESSION]
+                ||
+                !(int)$_SESSION[User::SESSION]["iduser"] > 0
+            ){
+                return false;
+            } else{
+            if ($inadmin === true && (bool) $_SESSION[User::SESSION]['inadmin'] ===true){
+                return true;
+            }elseif ($inadmin === false){
+                return true;
+            } else{
+                return true;
+            }
+            }
+        }
         public static function Login($login, $password)
         {
             $sql = new sql();
@@ -36,15 +64,7 @@
         
         public static function verifyLogin($inadmin = true)
         {
-            if (
-                !isset($_SESSION[User::SESSION])
-                ||
-                !$_SESSION[User::SESSION]
-                ||
-                !(int)$_SESSION[User::SESSION]["iduser"] > 0
-                ||
-                (bool)$_SESSION[User::SESSION]["inadmin"] !== $inadmin
-            ) {
+            if (User::checkLogin($inadmin)) {
                 header("location: /admin/login");
                 exit();
             }
