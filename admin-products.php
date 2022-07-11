@@ -58,7 +58,9 @@
         
         $product->save();
         
+        if (isset($_FILES["file"])){
         $product->setPhoto($_FILES["file"]);
+        }
     
         header("location: /admin/products");
         exit();

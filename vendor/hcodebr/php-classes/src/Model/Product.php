@@ -61,9 +61,9 @@
                     ":vllength" => $this->getvllength(),
                     ":vlweight" => $this->getvlweight(),
                     ":desurl" => $this->getdesurl()
-                
                 )
             );
+//            var_dump([$results]);exit();
             $this->setData($results[0]);
             
         }
@@ -90,41 +90,41 @@
         
         public function setPhoto($file)
         {
-            
-            //  $parts=pathinfo($file['name'],PATHINFO_EXTENSION);
-            //$parts['extension'];
-            $extension = explode(".", $file['name']);
-            
-            $extension = end($extension);
-            
-            switch (strtolower($extension)) {
-                case "jpg";
-                case "jpeg";
-                    $image = imagecreatefromjpeg($file["tmp_name"]);
-                    break;
-                case "gif";
-                    $image = imagecreatefromgif($file["tmp_name"]);
-                    break;
-                case "png";
-                    $image = imagecreatefrompng($file["tmp_name"]);
-                    break;
-                case "webp";
-                    $image = imagecreatefromwebp($file["tmp_name"]);
-                    break;
+            if (!$file['error']) {
+                //  $parts=pathinfo($file['name'],PATHINFO_EXTENSION);
+                //$parts['extension'];
+                $extension = explode(".", $file['name']);
+                
+                $extension = end($extension);
+                
+                switch (strtolower($extension)) {
+                    case "gif";
+                        $image = imagecreatefromgif($file["tmp_name"]);
+                        break;
+                    case "png";
+                        $image = imagecreatefrompng($file["tmp_name"]);
+                        break;
+                    case "webp";
+                        $image = imagecreatefromwebp($file["tmp_name"]);
+                        break;
+                    default:
+                        $image = imagecreatefromjpeg($file["tmp_name"]);
+                        break;
+                }
+                
+                $dist = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR .
+                    "res" . DIRECTORY_SEPARATOR .
+                    "site" . DIRECTORY_SEPARATOR .
+                    "img" . DIRECTORY_SEPARATOR .
+                    "products" . DIRECTORY_SEPARATOR .
+                    $this->getidproduct() . ".jpg";
+                
+                imagejpeg($image, $dist);
+                
+                imagedestroy($image);
+                
+                $this->checkPhoto();
             }
-            
-            $dist = $_SERVER['DOCUMENT_ROOT'] . DIRECTORY_SEPARATOR .
-                "res" . DIRECTORY_SEPARATOR .
-                "site" . DIRECTORY_SEPARATOR .
-                "img" . DIRECTORY_SEPARATOR .
-                "products" . DIRECTORY_SEPARATOR .
-                $this->getidproduct() . ".jpg";
-            
-            imagejpeg($image, $dist);
-            
-            imagedestroy($image);
-            
-            $this->checkPhoto();
         }
         
         public function getFromURL($desurl)

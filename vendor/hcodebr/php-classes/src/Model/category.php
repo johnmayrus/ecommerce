@@ -127,6 +127,8 @@
                 ":idproduct" => $product->getidproduct()
             ]);
         }
+    
+        
     }
     
     ?>
