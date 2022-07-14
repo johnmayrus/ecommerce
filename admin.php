@@ -26,6 +26,9 @@
     });
     $app->get('/admin/logout', function () {
         User::logout();
+        
+        header("location: /admin/login");
+        exit();
     });
     
     $app->get('/admin/forgot', function () {

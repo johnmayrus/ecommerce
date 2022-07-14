@@ -15,34 +15,17 @@
         const ERROR = 'UserError';
         const ERROR_REGISTER = 'UserErrorRegister';
         
-        public static function getFromSession(){
+        public static function getFromSession()
+        {
             $user = new User();
-            if (isset($_SESSION[User::SESSION]) && (int) $_SESSION[User::SESSION]['iduser'] > 0){
+            if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {
                 
                 $user->setData($_SESSION[User::SESSION]);
                 
             }
             return $user;
         }
-        public static function checkLogin($inadmin = true){
-            if (
-                !isset($_SESSION[User::SESSION])
-                ||
-                !$_SESSION[User::SESSION]
-                ||
-                !(int)$_SESSION[User::SESSION]["iduser"] > 0
-            ){
-                return false;
-            } else{
-            if ($inadmin === true && (bool) $_SESSION[User::SESSION]['inadmin'] ===true){
-                return true;
-            }else if ($inadmin === false){
-                return true;
-            } else{
-                return false;
-            }
-            }
-        }
+        
         public static function Login($login, $password)
         {
             $sql = new sql();
@@ -69,14 +52,37 @@
         public static function verifyLogin($inadmin = true)
         {
             if (!User::checkLogin($inadmin)) {
-                if($inadmin){
-                header("location: /admin/login");
-                }else{
+                if ($inadmin) {
+                    header("location: /admin/login");
+                } else {
                     header("location: /login");
                 }
                 exit();
             }
             
+        }
+        
+        public static function checkLogin($inadmin = true)
+        {
+            if (
+                !isset($_SESSION[User::SESSION])
+                ||
+                !$_SESSION[User::SESSION]
+                ||
+                !(int)$_SESSION[User::SESSION]["iduser"] > 0
+            ) {
+                return false;
+            } else {
+                if ($inadmin === true && (bool)$_SESSION[User::SESSION]['inadmin'] === true) {
+                    return true;
+                } else {
+                    if ($inadmin === false) {
+                        return true;
+                    } else {
+                        return false;
+                    }
+                }
+            }
         }
         
         public static function logout()
@@ -165,6 +171,59 @@
             
         }
         
+        public static function setForgotUsed($idrecorevy)
+        {
+            $sql = new Sql();
+            $sql->query("UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW() WHERE idrecovery = :idrecovery",
+                array(
+                    ":idrecovery" => $idrecorevy
+                ));
+        }
+        
+        public static function getError()
+        {
+            $msg = (isset($_SESSION[User::ERROR]) && $_SESSION[User::ERROR]) ? $_SESSION[User::ERROR] : '';
+            
+            User::clearError();
+            
+            return $msg;
+        }
+        
+        public static function setError($msg)
+        {
+            $_SESSION[User::ERROR] = $msg;
+        }
+        
+        public static function clearError()
+        {
+            $_SESSION[User::ERROR] = null;
+        }
+        
+        public static function getErrorRegister(){
+            $msg = (isset($_SESSION[User::ERROR_REGISTER]) && $_SESSION[User::ERROR_REGISTER]) ? $_SESSION[User::ERROR_REGISTER] : '';
+            
+            User::clearErrorRegister();
+            
+            return $msg;
+        }
+        
+        public static function setErrorRegister($msg)
+        {
+            $_SESSION[User::ERROR_REGISTER] = $msg;
+        }
+        public static function clearErrorRegister(){
+            $_SESSION[User::ERROR_REGISTER] = NULL;
+        }
+        
+        public static function checkLoginExist($login)
+        {
+            $sql = new Sql();
+            $results = $sql->select("SELECT * FROM tb_users WHERE deslogin = :deslogin", [
+                ':deslogin' => $login
+            ]);
+            return (count($results) > 0);
+        }
+        
         public function save()
         {
             $sql = new Sql();
@@ -179,6 +238,11 @@
                 )
             );
             $this->setData($results[0]);
+        }
+        
+        public static function getPasswordHash($password)
+        {
+            return password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
         }
         
         public function get($iduser)
@@ -216,44 +280,14 @@
                     ":iduser" => $this->getiduser()
                 ));
         }
-        public static function setForgotUsed($idrecorevy){
+        
+        public function setpassword($password)
+        {
             $sql = new Sql();
-            $sql->query("UPDATE tb_userspasswordsrecoveries SET dtrecovery = NOW() WHERE idrecovery = :idrecovery",array(
-                ":idrecovery"=>$idrecorevy
+            $sql->query("UPDATE tb_users SET despassword= :password WHERE iduser = :iduser", array(
+                ":password" => $password,
+                ":iduser" => $this->getiduser()
             ));
-        }
-        public function setpassword($password){
-            $sql = new Sql();
-            $sql->query("UPDATE tb_users SET despassword= :password WHERE iduser = :iduser",array(
-                ":password"=>$password,
-                ":iduser"=>$this->getiduser()
-            ));
-        }
-        public static function setError($msg){
-            $_SESSION[User::ERROR] = $msg;
-        }
-        public static function getError(){
-            $msg = (isset($_SESSION[User::ERROR]) && $_SESSION[User::ERROR]) ? $_SESSION[User::ERROR] : '';
-            
-            User::clearError();
-            
-            return $msg;
-        }
-        public static function clearError(){
-            $_SESSION[User::ERROR] = null;
-        }
-        public static function setErrorRegister($msg){
-            $_SESSION[User::ERROR_REGISTER] = $msg;
-        }
-        public static function checkLoginExist($login){
-           $sql = new Sql();
-           $results = $sql->select("SELECT * FROM tb_users WHERE deslogin = :deslogin", [
-               ':deslogin'=>$login
-           ]);
-           return(count($results) > 0);
-        }
-        public static function getPasswordHash($password){
-            return password_hash($password, PASSWORD_DEFAULT, ['cost'=>12]);
         }
     }
     
