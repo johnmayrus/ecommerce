@@ -110,7 +110,7 @@
             
         }
         
-        public static function getForgot($email)
+        public static function getForgot($email, $inadmin = true)
         {
             $sql = new Sql();
             $results = $sql->select("SELECT * FROM tb_persons a INNER JOIN tb_users b USING(idperson) WHERE a.desemail = :email;",
@@ -129,9 +129,17 @@
                     throw new \Exception("Não foi possivel recuperar a senha.");
                 } else {
                     $dataRecovery = $results2[0];
+                    
                     $code = base64_encode(self::secure($dataRecovery["idrecovery"]));
-                    $link = "https://www.flordecacto.com.br/admin/forgot/reset?code=$code";
+                    
+                    if($inadmin === true){
+                        $link = "https://www.flordecacto.com.br/admin/forgot/reset?code=$code";
+                    }else{
+                        $link = "https://www.flordecacto.com.br/forgot/reset?code=$code";
+                    }
+                    
                     $mailer = new Mailer($data["desemail"], $data["desperson"],
+                        
                         "Redefinir Senha da Flor de cacto story", "forgot",
                         array(
                             "name" => $data["desperson"],
