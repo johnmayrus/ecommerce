@@ -15,18 +15,18 @@
         const ERROR = 'UserError';
         const ERROR_REGISTER = 'UserErrorRegister';
         const SUCCESS = 'UserSuccess';
-        
+    
         public static function getFromSession()
         {
             $user = new User();
             if (isset($_SESSION[User::SESSION]) && (int)$_SESSION[User::SESSION]['iduser'] > 0) {
-                
+            
                 $user->setData($_SESSION[User::SESSION]);
-                
+            
             }
             return $user;
         }
-        
+    
         public static function Login($login, $password)
         {
             $sql = new sql();
@@ -47,9 +47,9 @@
             } else {
                 throw new \Exception("Usuário ou senha inválida.");
             }
-            
-        }
         
+        }
+    
         public static function verifyLogin($inadmin = true)
         {
             if (!User::checkLogin($inadmin)) {
@@ -60,9 +60,9 @@
                 }
                 exit();
             }
-            
-        }
         
+        }
+    
         public static function checkLogin($inadmin = true)
         {
             if (
@@ -85,22 +85,22 @@
                 }
             }
         }
-        
+    
         public static function logout()
         {
             unset($_SESSION[User::SESSION]);
             header("location: /admin/login");
             exit();
-            
-        }
         
+        }
+    
         public static function listAll()
         {
             $sql = new Sql();
             return $sql->select("SELECT * FROM tb_users AS tb INNER JOIN tb_persons AS tp ON tb.idperson=tp.idperson ORDER BY tp.desperson");
-            
-        }
         
+        }
+    
         public static function getUser($iduser)
         {
             $sql = new Sql();
@@ -108,9 +108,9 @@
                 array(
                     ":IDUSER" => $iduser
                 ));
-            
-        }
         
+        }
+    
         public static function getForgot($email, $inadmin = true)
         {
             $sql = new Sql();
@@ -130,17 +130,17 @@
                     throw new \Exception("Não foi possivel recuperar a senha.");
                 } else {
                     $dataRecovery = $results2[0];
-                    
+                
                     $code = base64_encode(self::secure($dataRecovery["idrecovery"]));
-                    
-                    if($inadmin === true){
+                
+                    if ($inadmin === true) {
                         $link = "https://www.flordecacto.com.br/admin/forgot/reset?code=$code";
-                    }else{
+                    } else {
                         $link = "https://www.flordecacto.com.br/forgot/reset?code=$code";
                     }
-                    
+                
                     $mailer = new Mailer($data["desemail"], $data["desperson"],
-                        
+                    
                         "Redefinir Senha da Flor de cacto story", "forgot",
                         array(
                             "name" => $data["desperson"],
@@ -151,7 +151,7 @@
                 }
             }
         }
-        
+    
         public static function secure($value, $encrypt = true)
         {
             if (
@@ -163,7 +163,7 @@
             }
             return null;
         }
-        
+    
         public static function validForgotDecrypt($code)
         {
             $sql = new Sql();
@@ -177,9 +177,9 @@
             } else {
                 return $results[0];
             }
-            
-        }
         
+        }
+    
         public static function setForgotUsed($idrecorevy)
         {
             $sql = new Sql();
@@ -188,25 +188,26 @@
                     ":idrecovery" => $idrecorevy
                 ));
         }
-        
+    
         public static function getError()
         {
             $msg = (isset($_SESSION[User::ERROR]) && $_SESSION[User::ERROR]) ? $_SESSION[User::ERROR] : '';
-            
+        
             User::clearError();
-            
+        
             return $msg;
         }
-        
+    
         public static function setError($msg)
         {
             $_SESSION[User::ERROR] = $msg;
         }
-        
+    
         public static function clearError()
         {
             $_SESSION[User::ERROR] = null;
         }
+    
         public static function getSuccess()
         {
             $msg = (isset($_SESSION[User::SUCCESS]) && $_SESSION[User::SUCCESS]) ? $_SESSION[User::SUCCESS] : '';
@@ -225,23 +226,26 @@
         {
             $_SESSION[User::SUCCESS] = null;
         }
-        
-        public static function getErrorRegister(){
+    
+        public static function getErrorRegister()
+        {
             $msg = (isset($_SESSION[User::ERROR_REGISTER]) && $_SESSION[User::ERROR_REGISTER]) ? $_SESSION[User::ERROR_REGISTER] : '';
-            
+        
             User::clearErrorRegister();
-            
+        
             return $msg;
         }
-        
+    
         public static function setErrorRegister($msg)
         {
             $_SESSION[User::ERROR_REGISTER] = $msg;
         }
-        public static function clearErrorRegister(){
-            $_SESSION[User::ERROR_REGISTER] = NULL;
+    
+        public static function clearErrorRegister()
+        {
+            $_SESSION[User::ERROR_REGISTER] = null;
         }
-        
+    
         public static function checkLoginExist($login)
         {
             $sql = new Sql();
@@ -250,7 +254,7 @@
             ]);
             return (count($results) > 0);
         }
-        
+    
         public function save()
         {
             $sql = new Sql();
@@ -266,22 +270,22 @@
             );
             $this->setData($results[0]);
         }
-        
+    
         public static function getPasswordHash($password)
         {
             return password_hash($password, PASSWORD_DEFAULT, ['cost' => 12]);
         }
-        
+    
         public function get($iduser)
         {
             $sql = new Sql();
             $results = $sql->select("SELECT * FROM tb_users a INNER JOIN tb_persons b USING(idperson) WHERE a.iduser = :iduser",
                 array(":iduser" => $iduser));
             $data = $results[0];
-            
+        
             $data['desperson'] = utf8_encode($data['desperson']);
         }
-        
+    
         public function upDate()
         {
             $sql = new Sql();
@@ -298,7 +302,7 @@
             );
             $this->setData($results[0]);
         }
-        
+    
         public function delete()
         {
             $sql = new Sql();
@@ -307,7 +311,7 @@
                     ":iduser" => $this->getiduser()
                 ));
         }
-        
+    
         public function setpassword($password)
         {
             $sql = new Sql();
@@ -316,6 +320,20 @@
                 ":iduser" => $this->getiduser()
             ));
         }
-    }
     
-    ?>
+        public function getOrders()
+        {
+            $sql = new Sql();
+            $results = $sql->select("
+            SELECT * FROM tb_orders a
+            INNER JOIN tb_ordersstatus b USING(idstatus)
+            INNER JOIN tb_carts c USING(idcart)
+            INNER JOIN tb_users d ON d.iduser = a.iduser
+            INNER JOIN tb_addresses e USING(idaddress)
+            INNER JOIN tb_persons f ON f.idperson = d.idperson
+            WHERE a.iduser = :iduser", [
+                ':iduser' => $this->getiduser()
+            ]);
+            return $results;
+        }
+    }
