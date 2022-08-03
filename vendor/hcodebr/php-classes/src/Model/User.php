@@ -205,7 +205,8 @@
     
         public static function clearError()
         {
-            $_SESSION[User::ERROR] = null;
+            unset($_SESSION[User::ERROR]);
+//            $_SESSION[User::ERROR] = null;
         }
     
         public static function getSuccess()
@@ -224,7 +225,8 @@
     
         public static function clearSuccess()
         {
-            $_SESSION[User::SUCCESS] = null;
+            unset($_SESSION[User::SUCCESS]);
+//            $_SESSION[User::SUCCESS] = null;
         }
     
         public static function getErrorRegister()
@@ -243,7 +245,8 @@
     
         public static function clearErrorRegister()
         {
-            $_SESSION[User::ERROR_REGISTER] = null;
+            unset($_SESSION[User::ERROR_REGISTER]);
+//            $_SESSION[User::ERROR_REGISTER] = null;
         }
     
         public static function checkLoginExist($login)

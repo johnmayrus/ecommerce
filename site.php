@@ -171,14 +171,14 @@
         $cart->getCalculateTotal();
         $order = new Order();
         $order->setData([
-            'idcart'=>$cart->getidcart(),
-            'idaddress'=>$address->getidaddress(),
-            'iduser'=>$user->getiduser(),
-            'idstatus'=>OrderStatus::EM_ABERTO,
-            'vltotal'=>$cart->getvltotal()
+            'idcart' => $cart->getidcart(),
+            'idaddress' => $address->getidaddress(),
+            'iduser' => $user->getiduser(),
+            'idstatus' => OrderStatus::EM_ABERTO,
+            'vltotal' => $cart->getvltotal()
         ]);
         $order->save();
-        header("location: /order/".$order->getidorder());
+        header("location: /order/" . $order->getidorder());
         exit();
     });
     $app->get("/login", function () {
@@ -315,38 +315,39 @@
         header("location: /profile");
         exit();
     });
-    $app->get("/order/:idorder", function ($idorder){
+    $app->get("/order/:idorder", function ($idorder) {
         User::verifyLogin(false);
         $order = new Order();
         $order->get((int)$idorder);
         $page = new Page();
-        $page->setTpl("payment",[
-            'order'=>$order->getValues()
+        $page->setTpl("payment", [
+            'order' => $order->getValues()
         ]);
     });
-    $app->get("/boleto/:idorder", function ($idorder){
+    $app->get("/boleto/:idorder", function ($idorder) {
         User::verifyLogin(false);
         $order = new Order();
         $order->get((int)$idorder);
         // DADOS DO BOLETO PARA O SEU CLIENTE
         $dias_de_prazo_para_pagamento = 10;
         $taxa_boleto = 5.00;
-        $data_venc = date("d/m/Y", time() + ($dias_de_prazo_para_pagamento * 86400));  // Prazo de X dias OU informe data: "13/04/2006";
+        $data_venc = date("d/m/Y",
+            time() + ($dias_de_prazo_para_pagamento * 86400));  // Prazo de X dias OU informe data: "13/04/2006";
         $valor_cobrado = formatPrice($order->getvltotal()); // Valor - REGRA: Sem pontos na milhar e tanto faz com "." ou "," ou com 1 ou 2 ou sem casa decimal
-        $valor_cobrado = str_replace(",", ".",$valor_cobrado);
-        $valor_boleto=number_format($valor_cobrado+$taxa_boleto, 2, ',', '');
-    
+        $valor_cobrado = str_replace(",", ".", $valor_cobrado);
+        $valor_boleto = number_format($valor_cobrado + $taxa_boleto, 2, ',', '');
+        
         $dadosboleto["nosso_numero"] = $order->getidorder();  // Nosso numero - REGRA: Máximo de 8 caracteres!
-        $dadosboleto["numero_documento"] = $order->getidorder();	// Num do pedido ou nosso numero
+        $dadosboleto["numero_documento"] = $order->getidorder();    // Num do pedido ou nosso numero
         $dadosboleto["data_vencimento"] = $data_venc; // Data de Vencimento do Boleto - REGRA: Formato DD/MM/AAAA
         $dadosboleto["data_documento"] = date("d/m/Y"); // Data de emissão do Boleto
         $dadosboleto["data_processamento"] = date("d/m/Y"); // Data de processamento do boleto (opcional)
-        $dadosboleto["valor_boleto"] = $valor_boleto; 	// Valor do Boleto - REGRA: Com vírgula e sempre com duas casas depois da virgula
+        $dadosboleto["valor_boleto"] = $valor_boleto;    // Valor do Boleto - REGRA: Com vírgula e sempre com duas casas depois da virgula
 
 // DADOS DO SEU CLIENTE
         $dadosboleto["sacado"] = $order->getdesperson();
         $dadosboleto["endereco1"] = $order->getdesaddress() . " " . $order->getdedistrict();
-        $dadosboleto["endereco2"] = $order->getdescity() . " " . $order->getdesstate() . " " . $order->getdescountry() . " . CEP:".
+        $dadosboleto["endereco2"] = $order->getdescity() . " " . $order->getdesstate() . " " . $order->getdescountry() . " . CEP:" .
             $order->getdeszipcode();
 
 // INFORMACOES PARA O CLIENTE
@@ -371,8 +372,8 @@
 
 // DADOS DA SUA CONTA - ITAÚ
         $dadosboleto["agencia"] = "1690"; // Num da agencia, sem digito
-        $dadosboleto["conta"] = "48781";	// Num da conta, sem digito
-        $dadosboleto["conta_dv"] = "2"; 	// Digito do Num da conta
+        $dadosboleto["conta"] = "48781";    // Num da conta, sem digito
+        $dadosboleto["conta_dv"] = "2";    // Digito do Num da conta
 
 // DADOS PERSONALIZADOS - ITAÚ
         $dadosboleto["carteira"] = "175";  // Código da Carteira: pode ser 175, 174, 104, 109, 178, ou 157
@@ -390,17 +391,17 @@
         require_once($path . "funcoes_itau.php");
         require_once($path . "layout_itau.php");
         
-    
+        
     });
-    $app->get("/profile/orders", function(){
-       User::verifyLogin(false);
-       $user = User::getFromSession();
-       $page = new Page();
-       $page->setTpl("profile-orders",[
-          'orders'=>$user->getOrders()
-       ]);
+    $app->get("/profile/orders", function () {
+        User::verifyLogin(false);
+        $user = User::getFromSession();
+        $page = new Page();
+        $page->setTpl("profile-orders", [
+            'orders' => $user->getOrders()
+        ]);
     });
-    $app->get("/profile/orders/:idorder", function ($idorder){
+    $app->get("/profile/orders/:idorder", function ($idorder) {
         User::verifyLogin(false);
         $order = new Order();
         $order->get((int)$idorder);
@@ -408,9 +409,50 @@
         $cart->get((int)$order->getidcart());
         $cart->getCalculateTotal();
         $page = new Page();
-        $page->setTpl("profile-orders-detail",[
-            'order'=>$order->getValues(),
-            'cart'=>$cart->getValues(),
-            'products'=>$cart->getProducts()
+        $page->setTpl("profile-orders-detail", [
+            'order' => $order->getValues(),
+            'cart' => $cart->getValues(),
+            'products' => $cart->getProducts()
         ]);
+    });
+    $app->get("/profile/change-password", function () {
+        User::verifyLogin(false);
+        $user = new Page();
+        $user->setTpl("profile-change-password", [
+            'changePassError' => User::getError(),
+            'changePassSuccess' => User::getSuccess()
+        ]);
+    });
+    $app->post("/profile/change-password", function () {
+        User::verifyLogin(false);
+        if (!isset($_POST['current_pass']) || $_POST['current_pass'] === '') {
+            User::setError("Digite a senha atual.");
+            header("location: /profile/change-password");
+            exit();
+        }
+        if (!isset($_POST['new_pass']) || $_POST['current_pass'] === '') {
+            User::setError("Digite a nova senha.");
+            header("location: /profile/change-password");
+            exit();
+        }
+        if (!isset($_POST['new_pass_confirm']) || $_POST['current_pass'] === '') {
+            User::setError("Confirme a nova senha.");
+            header("location: /profile/change-password");
+            exit();
+        }if ($_POST['current_pass'] === $_POST['new_pass']) {
+            User::setError("Nova senha precisa ser diferente da atual.");
+            header("location: /profile/change-password");
+            exit();
+        }
+        $user = User::getFromSession();
+        if (!password_verify($_POST['current_pass'], $user->getdespassword())){
+            User::setError("Senha invalida.");
+            header("location: /profile/change-password");
+            exit();
+        }
+        $user->setdespassword($_POST['new_pass']);
+        $user->update();
+        User::setSuccess("Senha alterada com sucesso");
+        header("location: /profile/change-password");
+        exit();
     });
