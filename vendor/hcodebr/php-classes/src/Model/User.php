@@ -339,7 +339,7 @@
             ]);
             return $results;
         }
-        public static function getPage($page = 1, $itensPerPage = 8){
+        public static function getPage($page = 1, $itensPerPage = 10){
         
             $start = ($page - 1) * $itensPerPage;
         
@@ -361,7 +361,7 @@
                 'pages'=>ceil($resultsTotal[0]['nrtotal']/$itensPerPage)
             ];
         }
-        public static function getPageSearch($search,$page = 1, $itensPerPage = 10){
+        public static function getPageSearch($search, $page = 1, $itensPerPage = 10){
         
             $start = ($page - 1) * $itensPerPage;
         
